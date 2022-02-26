@@ -1,0 +1,94 @@
+﻿@inject NotificationService NotificationService
+@inject UserService UserService
+
+    
+@if (Loading)
+{
+    <Loader />
+}   else
+{
+    <MudGrid>
+        <MudItem xs="12" md="10">
+            <MudCard>   
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText>
+                            <b>Account details</b>
+                        </MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+
+                <MudCardContent>
+                    <MudGrid>
+                        @* Add additional fields if needed here *@
+                        <MudItem xs="12">
+                            <MudTextField Value="@_email" 
+                                Margin=Margin.Dense
+                                Label="Email" 
+                                Variant="Variant.Outlined" 
+                                HelperText="This is what you used to login with." 
+                                InputType="InputType.Email" 
+                                ValueChanged="@((string x) => CheckForChange(x))"
+                                />
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+
+                <MudCardActions Class="pb-4 pl-4">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" 
+                            Class="ml-auto" 
+                            Disabled=@(!_hasChanged)
+                            OnClick=@SaveChanges
+                            Size=Size.Small
+                        >Save Changes
+                        </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+}
+
+
+@code {
+    string _email { get; set; }
+    string _currentEmail { get; set; }
+    bool _hasChanged = false;
+    bool Loading = true;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var response = await UserService.GetUserEmail();
+        _email = response.Email;
+        _currentEmail = response.Email;
+        Loading = false;
+    }   
+
+    private void CheckForChange(string x)
+    {
+        _email = x;
+        _hasChanged = _currentEmail != _email ? true : false;
+
+        if (_email.Any(Char.IsWhiteSpace))
+        {
+            NotificationService.ShowSnackbar("Email should not have spaces", Severity.Error);
+            return;
+        }
+    }
+
+    private async void SaveChanges()
+    {
+        var userDetail = new UpdateGeneralDetailsRequest
+            {
+                Email = _email
+            };
+
+        var response = await UserService.UpdateGeneralDetails(userDetail);
+        if (!response.Successful)
+        {
+            NotificationService.ShowSnackbar("Profile not updated, try again later", Severity.Error);
+            return;
+        }
+
+        NotificationService.ShowSnackbar("Profile details saved", Severity.Success);
+    }
+}

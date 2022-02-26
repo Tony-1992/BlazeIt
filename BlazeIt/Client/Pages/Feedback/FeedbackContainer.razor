@@ -1,0 +1,42 @@
+﻿@inject FeedbackService FeedbackService
+
+
+<MudText Typo=Typo.h5 Align=Align.Center Class="mb-5">FeedbackList</MudText>
+
+@if (Loading)
+{
+    <Loader />
+} else
+{
+    @if (ListOfFeedback.Count < 1)
+    {
+        <MudText Typo=Typo.caption>No suggestions</MudText>
+    }
+    @foreach (var feedback in ListOfFeedback)
+    {
+        <FeedbackItemCard Id="@feedback.Id" Title="@feedback.Title"  Description="@feedback.Description" VoteCount=@feedback.Votes/>
+    }
+}
+
+@code {
+    bool Loading { get; set; } = true;
+    List<FeedbackResponse> ListOfFeedback = new List<FeedbackResponse>();
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        // Subscribe to events
+        FeedbackService.FeedbackCreated += UpdateFeedbackList;
+        FeedbackService.FeedbackUpdated += UpdateFeedbackList;
+
+        // Make request to get all Feedback held
+        ListOfFeedback = await FeedbackService.GetAllFeedback();
+        Loading = false;
+    }   
+
+    private async void UpdateFeedbackList()
+    {
+        ListOfFeedback = await FeedbackService.GetAllFeedback();
+        StateHasChanged();
+    }
+}

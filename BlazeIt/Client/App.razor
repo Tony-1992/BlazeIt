@@ -1,0 +1,24 @@
+﻿
+@* Move theme provider/state to top level to allow for overall app theming*@
+
+<CascadingAuthenticationState>
+    <MudThemeProvider />
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        </Found>
+        <NotFound>
+            <AuthorizeView>
+                <Authorized>
+                    <PageTitle>Not found</PageTitle>
+                    <LayoutView Layout="@typeof(MainLayout)">
+                        <p role="alert">Sorry, there's nothing at this address.</p>
+                    </LayoutView>
+                </Authorized>
+                <NotAuthorized>
+                    <NotFound />
+                </NotAuthorized>
+            </AuthorizeView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

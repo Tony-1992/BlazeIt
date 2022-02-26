@@ -1,0 +1,54 @@
+﻿@inherits LayoutComponentBase
+@inject AuthenticationService AuthService
+@inject NavigationManager NavManager
+
+
+
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme"/>
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<AuthorizeView>
+    <Authorizing>
+        <MudText>Checking auth status...</MudText>
+    </Authorizing>
+
+    <Authorized>
+        <MudLayout>
+            <MudAppBar Elevation="1" Dense="true">
+                <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+                <MudText Typo="Typo.h5" Class="ml-3">BlazeIt</MudText>
+            </MudAppBar>
+    
+            <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2" Variant="@DrawerVariant.Mini">
+                <NavMenu />  
+            </MudDrawer>
+    
+            <MudMainContent>
+                <MudContainer Fixed="true" Class="py-2">
+                    @Body
+                </MudContainer>
+            </MudMainContent>
+        </MudLayout>
+    </Authorized>
+
+
+    <NotAuthorized>
+        <LoginRedirect />
+    </NotAuthorized>
+
+</AuthorizeView>
+
+
+
+
+@code {
+    bool _drawerOpen = true;
+    private bool _isDarkMode;
+    private MudTheme _theme = new();
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}

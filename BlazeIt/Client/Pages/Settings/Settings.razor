@@ -1,0 +1,20 @@
+﻿@page "/settings"
+@attribute [Authorize]
+
+
+<PageTitle>Settings</PageTitle>
+
+<MudTabs Elevation="1" Rounded="true" PanelClass="mt-6">
+    
+    <MudTabPanel Text="General">
+        <GeneralPanel />
+    </MudTabPanel>
+
+    <MudTabPanel Text="Account Preferences">
+        <AccountPreferencePanel />
+    </MudTabPanel>
+
+    <MudTabPanel Text="Security">
+        <SecurityPanel />
+    </MudTabPanel>
+</MudTabs>

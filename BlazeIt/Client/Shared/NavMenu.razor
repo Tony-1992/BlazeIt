@@ -1,0 +1,21 @@
+﻿@inject AuthenticationService AuthService
+@inject NavigationManager NavManager
+
+
+<MudNavMenu Dense="true" Rounded="true" Margin="Margin.Dense" Class="pa-2" Color=Color.Primary>
+    <MudNavLink Href="/home" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Home">Home</MudNavLink>
+    <MudNavLink Href="/todos" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.CheckCircle">Todos</MudNavLink>
+    <MudNavLink Href="/feedback" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.Feedback">Feedback</MudNavLink>
+    <MudNavLink Href="/swagger" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.DeveloperMode">Swagger</MudNavLink>
+    <MudNavLink Href="/settings" Match="NavLinkMatch.Prefix" Icon="@Icons.Outlined.Settings">Settings</MudNavLink>
+    <MudNavLink Match="NavLinkMatch.Prefix" Icon="@Icons.Outlined.Logout" OnClick="@logout">Logout</MudNavLink>
+</MudNavMenu>
+
+
+@code {
+    private void logout()
+    {
+        AuthService.Logout();
+        NavManager.NavigateTo("/authentication/login");
+    }
+}

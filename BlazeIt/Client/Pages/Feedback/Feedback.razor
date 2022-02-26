@@ -1,0 +1,27 @@
+﻿@page "/feedback"
+@attribute [Authorize]
+
+
+<PageTitle>Feedback</PageTitle>
+
+<MudAlert Severity=Severity.Info Dense=true Class="mb-2"><b>Tab not yet complete.</b></MudAlert>
+
+<MudGrid>
+
+     @* Left - Feedback submission form *@
+    <MudItem xs="12" sm="12" md="4" lg=3>
+        <FeedbackForm />
+    </MudItem>
+
+    <MudSpacer />
+
+     @* Right - List of feedback items *@
+    <MudItem xs="12" sm="12" md="8" lg=8>
+        <FeedbackContainer />
+    </MudItem>
+</MudGrid>
+
+@code
+{
+
+}

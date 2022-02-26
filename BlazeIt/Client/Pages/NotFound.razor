@@ -1,0 +1,19 @@
+﻿<PageTitle>Not found</PageTitle>
+
+
+<MudContainer Class="mt-16">
+    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">Not found</MudText>
+    <MudText Align="Align.Center">Sorry, there's nothing at this address. It also looks like your not logged in.</MudText>
+    <MudGrid Class="mt-8">
+        <MudItem xs="12" sm="12" md="6" Class="d-flex justify-center">
+            <MudButton Link="/authentication/login" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Style="width:50%;">Login Now</MudButton>
+        </MudItem>
+        <MudItem xs="12" sm="12" md="6" Class="d-flex justify-center">
+            <MudButton Link="/authentication/register" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Style="width:50%;">Register Now</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+
+}

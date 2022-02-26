@@ -1,0 +1,60 @@
+﻿@inject FeedbackService FeedbackService
+
+
+
+<MudGrid Class="mt-3">
+    @* Icon *@
+    <MudItem sm=2 md=1>
+        <MudButton OnClick=@Vote>
+            <MudIcon Icon=@Icons.TwoTone.ArrowDropUp Size=Size.Large/>
+            <b>@VoteCount</b>
+        </MudButton>
+    </MudItem>
+    
+    @* Main *@
+    <MudItem sm=9 md=10>
+        <MudGrid Spacing=0 Class="ml-3">
+            <MudItem xs=12 sm=12 md=12>
+                 <MudText Typo="Typo.body1" ><b>@Title</b></MudText>
+            </MudItem>
+            <MudItem xs=12 sm=12 md=12>
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">@Description</MudText>
+            </MudItem>
+        </MudGrid>
+    </MudItem>
+
+    @* comment icon *@
+    <MudItem sm=1 md=1>
+        <MudAvatar Color="Color.Primary" Variant="Variant.Outlined">
+            <MudIcon Size=Size.Small Icon="@Icons.Material.Filled.Comment" />
+        </MudAvatar>
+    </MudItem>
+</MudGrid>
+
+@* Divider *@
+<MudDivider DividerType="DividerType.Middle" Class="my-3 mud-text-secondary"/>
+
+
+
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    [Parameter]
+    public int VoteCount { get; set; }
+    [Parameter]
+    public string Title { get; set; }
+    [Parameter]
+    public string Description { get; set; }
+
+
+    private async void Vote()
+    {
+        var feedback = new FeedbackVoteRequest
+            {
+                FeedbackId = Id
+            };
+
+        await FeedbackService.FeedbackVote(feedback);
+    }
+}

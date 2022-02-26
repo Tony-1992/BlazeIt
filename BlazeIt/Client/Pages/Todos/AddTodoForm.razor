@@ -1,0 +1,44 @@
+﻿@inject TodoService TodoService
+@inject NotificationService NotificationService
+
+
+<MudForm @ref="form">
+    <MudGrid Class="mb-6">
+        <MudItem md=12>
+            <MudTextField @bind-Value="@model.Title" Label="Enter todo here..." Margin=Margin.Dense Variant="Variant.Filled"></MudTextField>
+        </MudItem>
+        <MudItem md=12>
+            <MudButton Variant="Variant.Filled" FullWidth=true 
+                EndIcon="@Icons.Material.TwoTone.Send" 
+                Color="Color.Primary" 
+                Size=Size.Small
+                OnClick=@SubmitTodo>
+                Create Todo
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudForm>
+
+@code {
+    MudForm form;
+    CreateTodoRequest model = new CreateTodoRequest();
+
+    private async void SubmitTodo()
+    {
+        if (string.IsNullOrWhiteSpace(model.Title))
+        {
+            NotificationService.ShowSnackbar("Please enter a value", Severity.Error);
+            form.Reset();
+            return;
+        }
+
+        var response = await TodoService.CreateTodo(model);
+        form.Reset();
+
+        if (response.Successful)
+        {
+            NotificationService.ShowSnackbar("Successfully added item", Severity.Success);
+        }
+    }
+
+}

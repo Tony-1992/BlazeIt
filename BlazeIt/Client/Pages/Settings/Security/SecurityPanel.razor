@@ -1,0 +1,183 @@
+﻿@inject NotificationService NotificationService
+@inject NavigationManager NavManager
+@inject AuthenticationService AuthService
+@inject UserService UserService
+
+<MudGrid>
+
+    <MudItem xs="12" md="10">
+        <MudForm @ref="_changePasswordForm">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText>
+                            <b>Change password</b>
+                        </MudText>
+                        <MudText Typo=Typo.body2>
+                           You can change your password at any time.
+                        </MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudGrid>
+                        <MudItem xs="12" md="6">
+                            <MudTextField T="string" 
+                                Margin=Margin.Dense
+                                Label="New Password" Variant="Variant.Outlined" 
+                                InputType="InputType.Password"
+                                Required="true" RequiredError="New password is required!"
+                                Validation="@(new Func<string, IEnumerable<string>>(PasswordStrength))"
+                                @bind-Value="@_passwordModel.Password" />
+                        </MudItem>
+                        <MudItem xs="12" md="6">
+                            <MudTextField T="string" Label="Password Confirmation" 
+                                Margin=Margin.Dense
+                                Variant="Variant.Outlined" InputType="InputType.Password"
+                                Required="true" RequiredError="Confirm password is required!"
+                                Validation="@(new Func<string, string>(PasswordMatch))"
+                                @bind-Value="@_passwordModel.ConfirmNewPassword"/>
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudTextField T="string" Label="Current Password" 
+                                Margin=Margin.Dense
+                                Variant="Variant.Outlined" 
+                                InputType="InputType.Password" 
+                                Required="true" RequiredError="Your current password is required!"
+                                @bind-Value="@_passwordModel.CurrentPassword" />
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+                <MudCardActions Class="pb-4 pl-4">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" Size=Size.Small @onclick=@SavePasswordChanges>Change Password</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudForm>
+    </MudItem>
+
+    @* 2nd Card *@
+    <MudItem xs="12" md="10">
+        <MudForm @ref="_deleteAccountForm">
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText>
+                    <b>Delete account</b>
+                </MudText>
+                <MudText Typo=Typo.body2>
+                    When you delete your account, you lose all related data and permissions. This cannot be undone.
+                </MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField T="string" Label="Enter Password" 
+                        Margin=Margin.Dense
+                        Variant="Variant.Outlined" 
+                        InputType="InputType.Password" 
+                        Required="true" 
+                        RequiredError="Password is required!"
+                        @bind-Value="@_deleteAccountModel.Password" />
+                </MudItem>
+            </MudGrid>
+        </MudCardContent>
+        <MudCardActions Class="pb-4 pl-4">
+            <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-auto" Size=Size.Small @onclick=@DeleteAccount>Delete account</MudButton>
+        </MudCardActions>
+    </MudCard>
+</MudForm>
+    </MudItem>
+</MudGrid>
+
+
+@code {
+    // Forms
+    MudForm _changePasswordForm;
+    MudForm _deleteAccountForm;
+
+
+    // Models
+    ChangePasswordRequest _passwordModel = new ChangePasswordRequest();
+    DeleteAccountRequest _deleteAccountModel = new DeleteAccountRequest();
+
+
+    private IEnumerable<string> PasswordStrength(string pw)
+    {
+        if (string.IsNullOrWhiteSpace(pw))
+        {
+            yield return "Password is required!";
+            yield break;
+        }
+        if (pw.Length < 8)
+            yield return "Password must be at least of length 8";
+        if (!Regex.IsMatch(pw, @"[A-Z]"))
+            yield return "Password must contain at least one capital letter";
+        if (!Regex.IsMatch(pw, @"[a-z]"))
+            yield return "Password must contain at least one lowercase letter";
+        if (!Regex.IsMatch(pw, @"[0-9]"))
+            yield return "Password must contain at least one digit";
+    }
+
+
+    private string PasswordMatch(string arg)
+    {
+        if (_passwordModel.Password != _passwordModel.ConfirmNewPassword)
+            return "Passwords don't match";
+        return null;
+    }
+
+
+    private async void SavePasswordChanges()
+    {
+
+        if (string.IsNullOrWhiteSpace(_passwordModel.Password) || string.IsNullOrWhiteSpace(_passwordModel.ConfirmNewPassword) || string.IsNullOrWhiteSpace(_passwordModel.CurrentPassword))
+        {
+            NotificationService.ShowSnackbar("Please complete all fields.", Severity.Error);
+            return;
+        }
+
+        if (_passwordModel.Password != _passwordModel.ConfirmNewPassword)
+        {
+            NotificationService.ShowSnackbar("Passwords do not match", Severity.Error);
+            return;
+        }
+
+
+        var response = await UserService.ChangePassword(_passwordModel);
+
+        if (!response.Successful)
+        {
+            NotificationService.ShowSnackbar("Check current password is correct", Severity.Error);
+            _changePasswordForm.Reset();
+            return;
+        }
+
+        NotificationService.ShowSnackbar("Password successfully updated.", Severity.Success);
+        
+        // Empty form fields
+        _changePasswordForm.Reset();
+    }
+
+
+    private async void DeleteAccount()
+    {
+        
+        if (string.IsNullOrWhiteSpace(_deleteAccountModel.Password))
+        {
+            NotificationService.ShowSnackbar("Please confirm your password.", Severity.Error);
+            return;
+        }
+
+        var response = await UserService.DeleteAccount(_deleteAccountModel);
+
+        if(!response.Successful)
+        {
+            NotificationService.ShowSnackbar("Ensure your password is correct", Severity.Error);
+            return;
+        }
+
+        // navigate back  to login, delete authToken & change state
+        AuthService.Logout();
+        NavManager.NavigateTo("/authentication/login");
+    }
+}

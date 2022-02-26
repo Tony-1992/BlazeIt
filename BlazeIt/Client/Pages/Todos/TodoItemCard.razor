@@ -1,0 +1,74 @@
+﻿@inject TodoService TodoService
+@inject NotificationService NotificationService
+
+
+<MudGrid>
+    <MudItem md=1>
+        <MudCheckBox @bind-Checked=@Completed 
+            Color="Color.Tertiary" 
+            CheckedIcon="@Icons.Material.Filled.CheckCircle" 
+            UncheckedIcon="@Icons.Material.Filled.RadioButtonUnchecked"
+            onclick=@(() => UpdateTodo())></MudCheckBox>
+    </MudItem>
+    <MudItem md=10 Class="d-flex align-center">
+        <MudText Typo=Typo.body2>@Title</MudText>
+    </MudItem>
+    <MudItem md=1 Class="d-flex align-center">
+        <MudIconButton Icon="@Icons.Material.TwoTone.Delete" 
+            Variant="Variant.Filled" 
+            Color="Color.Error" 
+            Size="Size.Small"
+            OnClick=@DeleteTodo/>
+    </MudItem>
+</MudGrid>
+
+
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    [Parameter]
+    public string Title { get; set; }
+    [Parameter]
+    public bool Completed { get; set; }
+
+
+
+    private async void DeleteTodo()
+    {
+        var request = new DeleteTodoRequest
+            {
+                Id = Id
+            };
+
+        var response = await TodoService.DeleteTodo(request);
+
+        if (!response.Successful)
+        {
+            NotificationService.ShowSnackbar("Unable to delete item", Severity.Error);  
+            return;
+        } 
+        else
+        {
+            NotificationService.ShowSnackbar("Item successfully deleted", Severity.Success);  
+            return;
+        }
+    }
+
+    private async void UpdateTodo()
+    {
+        var model = new UpdateTodoRequest
+            {
+                Id = Id,
+                Completed = !Completed,
+                Title = Title
+            };
+
+        var response = await TodoService.UpdateTodo(model);
+         if (response.Successful)
+        {
+            NotificationService.ShowSnackbar("Successfully updated item", Severity.Success);
+        }
+    }
+
+}

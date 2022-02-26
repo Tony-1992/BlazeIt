@@ -1,0 +1,78 @@
+﻿@page "/authentication/register"
+@layout LoginLayout
+@inject UserService UserService
+
+
+<PageTitle>Register</PageTitle>
+<MudText Typo="Typo.h4" GutterBottom="true">Sign Up</MudText>
+<MudText>Already have an account? <MudLink Href="/authentication/login">Sign In</MudLink></MudText>
+
+<MudTextField @bind-Value="@_model.Email" T="string" Label="E-mail" Variant="Variant.Outlined" Class="mt-4"></MudTextField>
+<MudTextField @bind-Value="@_model.Password" Label="Password" Variant="Variant.Outlined" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="TogglePasswordVisibility" Class="mt-4"/>
+<MudCheckBox @bind-Checked="@AgreeToTerms" Label="I agree to the terms and privacy" Color="Color.Primary" Class="ml-n1 my-3"></MudCheckBox>
+<MudButton @onclick=@RegisterUser Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!AgreeToTerms)" Size="Size.Large" FullWidth="true">Register</MudButton>
+
+@if (_showAlert)
+{
+    <MudAlert Severity=@_alertSeverity Class="mt-8 mud-width-full" Style="max-width:500px;" >@_alertMessage</MudAlert>
+}
+
+@code {
+    private RegisterUserRequest _model = new RegisterUserRequest();
+    public bool AgreeToTerms { get; set; }
+
+    // Error and alert fields
+    private bool _showAlert = false;
+    private string _alertMessage { get; set; }
+    private Severity _alertSeverity { get; set; }
+
+    // Password fields
+    bool PasswordVisibility;
+    InputType PasswordInput = InputType.Password;
+    string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+
+    private void TogglePasswordVisibility()
+    {
+        @if (PasswordVisibility)
+        {
+            PasswordVisibility = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInput = InputType.Password;
+        }
+        else
+        {
+            PasswordVisibility = true;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+            PasswordInput = InputType.Text;
+        }
+    }
+
+    private void ShowAlert(string alertMessage, Severity severity)
+    {
+        _showAlert = true;
+        _alertMessage = alertMessage;
+        _alertSeverity = severity;
+        StateHasChanged();
+    }
+
+    public async void RegisterUser()
+    {
+        if (string.IsNullOrEmpty(_model.Email) || string.IsNullOrEmpty(_model.Password))
+        {
+            ShowAlert("All fields must be completed.", Severity.Error);
+            return;
+        }
+
+
+        var result = await UserService.RegisterUser(_model);
+
+        if (!result.Successful)
+        {
+            ShowAlert(result.Error, Severity.Error);
+            return;
+        }
+
+        ShowAlert("Successfully registered, continue to login.", Severity.Success);
+    }
+}

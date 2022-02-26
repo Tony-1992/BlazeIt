@@ -1,0 +1,51 @@
+﻿@using BlazeIt.Shared.DTOs.Response
+@inject TodoService TodoService
+
+
+@if (Loading)
+{
+    <Loader />
+} else
+{
+    @if (TodoList.Count < 1)
+    {
+        <MudText Align=Align.Center Typo=Typo.body2>No todos... try creating some.</MudText>
+    } else
+    {
+        <MudCard Class="mt-3">
+            <MudCardContent>
+                @foreach (var todo in TodoList)
+                    {
+                        <TodoItemCard Title=@todo.Title Completed=@todo.Completed Id=@todo.Id />
+                    }
+            </MudCardContent>
+        </MudCard>
+    }
+}
+
+
+@code {
+    bool Loading { get; set; } = true;
+    List<TodoResponse> TodoList = new List<TodoResponse>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // subscribe to events
+        TodoService.TodoCreated += UpdateTodoList;
+        TodoService.TodoDeleted += UpdateTodoList;
+        TodoService.TodoUpdated += UpdateTodoList;
+
+        // Make request to get all Todos held
+        TodoList = await TodoService.GetAllTodos();
+        Loading = false;
+    }
+
+
+    private async void UpdateTodoList()
+    {
+        TodoList = await TodoService.GetAllTodos();
+        StateHasChanged();
+    }
+
+}

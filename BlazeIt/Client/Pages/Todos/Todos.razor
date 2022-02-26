@@ -1,0 +1,17 @@
+﻿@page "/todos"
+@inject TodoService TodoService
+@attribute [Authorize]
+
+
+<PageTitle>Todos</PageTitle>
+
+<MudGrid>
+    <MudItem md="2"></MudItem>
+    <MudItem md="8">
+        <AddTodoForm />
+        <TodoContainer />
+    </MudItem>
+    <MudItem md="2"></MudItem>
+</MudGrid>
+
+

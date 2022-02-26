@@ -1,0 +1,58 @@
+﻿@inject FeedbackService FeedbackService
+@inject NotificationService NotificationService
+
+<MudText Typo=Typo.body2 Class="my-2">
+    Welcome to the feedback forum for BlazeIt. 
+</MudText>
+<MudText Typo=Typo.caption>
+    Please report any <b>issues</b>, <b>suggestions</b> for new features, and <b>vote</b> on the items you would like to see addressed. 
+    Please check if suggestions/problems have been reaised previously.
+    I will review all entries here and plan future updates to BlazeIt. 
+</MudText>
+
+<MudForm Class="mt-10" Model=@model @ref=@Form>
+    <MudTextField @bind-Value=@model.Title
+        Margin="Margin.Dense" 
+        Variant="Variant.Outlined"
+        Counter="50" MaxLength="50"
+        Immediate=true
+        Placeholder="Short heading for your suggestion here..."
+    ></MudTextField>
+    
+    <MudTextField @bind-Value=@model.Description
+        Margin="Margin.Dense" 
+        Variant="Variant.Outlined"
+        Counter="250" MaxLength="250"
+        Immediate=true
+        Placeholder="Enter description here..."
+        Lines="2"
+    ></MudTextField>
+    <MudButton Color=Color.Primary FullWidth=true Variant=Variant.Filled Class="mt-2" Size=Size.Small OnClick=@SubmitFeedback>Submit</MudButton>
+</MudForm>
+
+
+
+@code {
+    MudForm Form;
+    CreateFeedbackRequest model = new CreateFeedbackRequest();
+
+
+    private async void SubmitFeedback()
+    {
+        if (string.IsNullOrWhiteSpace(model.Title) || string.IsNullOrWhiteSpace(model.Description))
+        {
+            NotificationService.ShowSnackbar("Fields must be complete.", Severity.Error);
+            return;
+        }
+
+        var response = await FeedbackService.CreateFeedback(model);
+        if (response.Successful)    
+        {
+            NotificationService.ShowSnackbar("Feedback submitted", Severity.Success);
+        } else
+        {
+            NotificationService.ShowSnackbar("Something went wrong...", Severity.Error);
+        }
+        Form.Reset();
+    }
+}
